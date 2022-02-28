@@ -2,7 +2,7 @@ name: Sync Fork
 
 on:
   schedule:
-    - cron: '*/5 * * * *' # every 30 minutes
+    - cron: '*/30 * * * *' # every 30 minutes
   workflow_dispatch: # on button click
 
 jobs:
@@ -13,7 +13,6 @@ jobs:
     steps:
       - uses: tgymnich/fork-sync@v1.4
         with:
-          token: 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
           owner: harveybellini
           base: Exordle
           head: Exordle
