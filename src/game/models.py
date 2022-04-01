@@ -1,4 +1,6 @@
-from datetime import date
+from django.utils import timezone
+import os
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -16,7 +18,7 @@ class Locations(models.Model):
 # word model
 class Words(models.Model):
     word = models.TextField(primary_key=True, max_length=20)
-    last_used = models.DateField()
+    date = models.DateField()
     num_correct_guesses = models.IntegerField(default=0)
     num_uses = models.IntegerField(default=0)
     location = models.ForeignKey(Locations, on_delete=models.CASCADE)
@@ -26,14 +28,36 @@ class Words(models.Model):
     
     # get the last last-used word 
     def get_word():
-        return Words.objects.all().order_by('last_used').first()
+        try:
+            return Words.objects.get(date=timezone.now()) # get word of the day
+        except:
+            try:
+                return Words.objects.all()[0] # get first word
+            except:
+                return "BLANK" # if no words, return word as BLANK
+
+    def get_valid_words(self):
+        word_file = open(os.path.join(settings.BASE_DIR, '..', 'res', 'words.txt'), "r")
+        word_file = [x.strip() for x in word_file.readlines()]
+        db_words = list(map(str.lower, map(str, Words.objects.all())))
+
+        return db_words + word_file
+    
+    def guess_letter(self, letter):
+        word = str(self)
+        
+        if letter in word:
+            return "correct"
+        else:
+            return "wrong"
+
     
     def guess(self, request, attempt, save=True):
         
-        # weather or not this is coming straight from a request or not
+        # whether or not this is coming straight from a request or not
         if save:
-            guess_num = attempt.pop('guess')
-            attempt.pop('csrfmiddlewaretoken')
+            guess_num = attempt.pop("guess")
+            attempt.pop("csrfmiddlewaretoken")
         
         correct = True
         word = str(self)
@@ -49,28 +73,31 @@ class Words(models.Model):
             guess_attempt += value
             idx = int(position) - 1
             if word[idx] == value.upper():
-                data[position] = 'perfect'
-                word = word.replace(value.upper(), ' ', 1)
+                data[position] = "perfect"
+                word = word.replace(value.upper(), " ", 1)
             elif value.upper() in word:
                 correct = False
-                data[position] = 'correct'
-                word = word.replace(value.upper(), ' ', 1)
+                data[position] = "correct"
+                word = word.replace(value.upper(), " ", 1)
             else:
                 correct = False
-                data[position] = 'wrong'
+                data[position] = "wrong"
         
         # if we're saving the guess, insert into database
         if save:
-            guess_item = Guesses.objects.create(
-                user=request.user, 
-                word=self,
-                guess=guess_attempt.upper(), 
-                guess_num=guess_num, 
-                day_of_guess=date.today(),
-                correct=correct
-            )
+            data["valid"] = guess_attempt.lower() in self.get_valid_words()
             
-            guess_item.save()
+            if data["valid"]:
+                guess_item = Guesses.objects.create(
+                    user=request.user, 
+                    word=self,
+                    guess=guess_attempt.upper(), 
+                    guess_num=guess_num, 
+                    day_of_guess=timezone.now(),
+                    correct=correct
+                )
+                
+                guess_item.save()
                 
         return data
 
@@ -81,8 +108,9 @@ class Words(models.Model):
 # hint model
 class Hints(models.Model):
     hint_id = models.AutoField(primary_key=True)
+    hint_code = models.TextField(default=None)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="creator")
-    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="receiver")
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="receiver", null=True, blank=True)
     word = models.ForeignKey(Words, on_delete=models.CASCADE, default=None)
     timestamp = models.DateTimeField()
     hint = models.TextField()
@@ -93,7 +121,7 @@ class Hints(models.Model):
     class Meta:
         verbose_name = "Hint"
         verbose_name_plural = "Hints"
-
+        
 # guess model
 class Guesses(models.Model):
     guess_id = models.AutoField(primary_key=True)
@@ -110,3 +138,14 @@ class Guesses(models.Model):
     class Meta:
         verbose_name = "Guess"
         verbose_name_plural = "Guesses"
+
+class CheckIns(models.Model):
+    checkin_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    word = models.ForeignKey(Words, on_delete=models.CASCADE, default=None)
+    points = models.IntegerField(default=0)
+    day = models.DateField()
+    
+    class Meta:
+        verbose_name = "Check In"
+        verbose_name_plural = "Check Ins"

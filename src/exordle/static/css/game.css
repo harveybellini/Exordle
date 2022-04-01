@@ -3,6 +3,9 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  overflow-y: hidden;
+  overflow-x: hidden;
 }
 
 .word > * {
@@ -18,6 +21,9 @@ html, body {
   caret-color: transparent;
   text-transform: uppercase;
   font-weight: bold;
+  padding: 0;
+  -webkit-text-fill-color: white;
+  opacity: 1;
 }
 
 .word:focus {
@@ -49,25 +55,57 @@ html, body {
   width: 100%;
 }
 
+
 .container > img {
   position: absolute;
   left: 0; right: 0;
   top: 0; bottom: 0;
-  margin: 15% auto;
+  margin: auto;
   text-align: center;
+  cursor: pointer;
 }
 
 .container > h1 {
   font-size: 2.3vw;
-  position: absolute;
-  left: 0; right: 0;
-  top: 0; bottom: 0;
-  margin: 23.5% auto;
+  margin: auto;
   vertical-align: middle;
   text-align: center;
   font-weight: bolder;
   font-family: Arial, Helvetica, sans-serif;
   color: white;
+}
+
+.information {
+  color: white;
+  position: absolute;
+  right: 1%;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.checkIn {
+  font-size: 2vw;
+  margin-top: 20px;
+  vertical-align: middle;
+  text-align: center;
+  font-weight: bolder;
+  font-family: Arial, Helvetica, sans-serif;
+  color: white;
+}
+
+.helpImage {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 75%;
+}
+
+.title {
+  margin: 0 0 5% 0;
+  vertical-align: middle;
+  text-align: center;
+  font-weight: bolder;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .container > .play {
@@ -97,8 +135,17 @@ html, body {
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
-  margin: 4px 2px;
+  margin: auto;
   cursor: pointer;
+}
+
+
+.success {
+  color: #538D4E;
+}
+
+.error {
+  color: red;
 }
 
 .perfect {
@@ -185,11 +232,13 @@ html, body {
   bottom: 2%;
   transform: translate(-50%, -2%);
   margin: 0 auto;
+  touch-action: manipulation;
 }
 
 .keyboard > .row {
   display: flex; 
   justify-content: center;
+  touch-action: manipulation;
 }
 
 .keyboard > .row > * {
@@ -206,4 +255,5 @@ html, body {
   cursor: pointer;
   margin: 0.7% 0.5%;
   align-items: center;
+  touch-action: manipulation;
 }

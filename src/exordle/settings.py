@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+import environ
+import os
+
+env = environ.Env(DEBUG=(bool, False))
+environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,7 +26,7 @@ SITE_ID = 1
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-(9@fi6ypyq9l&#x@qlpl1*s0bmr@0oyr5-c3vi8ydf+)@l@=n)'
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -39,6 +44,8 @@ INSTALLED_APPS = [
     'microsoft_auth',
     'auth',
     'game',
+    'map',
+    'leaderboard'
 ]
 
 APPEND_SLASH = True
@@ -58,7 +65,7 @@ ROOT_URLCONF = 'exordle.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'exordle', 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -79,7 +86,7 @@ AUTHENTICATION_BACKENDS = [
 
 MICROSOFT_AUTH_CLIENT_ID = '7765f92d-13bf-49df-b3db-819dfab8837b'
 
-MICROSOFT_AUTH_CLIENT_SECRET = 'mAG7Q~IwYIJY01RWMLe4V6XWnlp42owM__eh5'
+MICROSOFT_AUTH_CLIENT_SECRET = env("MICROSOFT_AUTH_CLIENT_SECRET")
 
 MICROSOFT_AUTH_TENANT_ID = '912a5d77-fb98-4eee-af32-1334d8f04a53'
 
@@ -123,7 +130,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'GMT'
 
 USE_I18N = True
 
@@ -134,6 +141,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / "exordle" / "static",
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
